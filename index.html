@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Integral Adventure | ปริพันธ์ไม่จำกัดเขต</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800&display=swap');
+
+:root{
+  --bg1:#f4f0ff;
+  --bg2:#eafcff;
+  --card:#ffffffee;
+  --ink:#24324a;
+  --muted:#6d7890;
+  --primary:#7757d9;
+  --primary2:#4f9fe8;
+  --good:#28a86b;
+  --bad:#e45f78;
+  --gold:#f6b93b;
+  --line:#e7e4f2;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:'Prompt',system-ui,sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 10% 15%, #ffdff0 0 13%, transparent 14%),
+    radial-gradient(circle at 90% 10%, #dff5ff 0 14%, transparent 15%),
+    radial-gradient(circle at 85% 90%, #eee3ff 0 16%, transparent 17%),
+    linear-gradient(135deg,var(--bg1),var(--bg2));
+}
+body:before,body:after{
+  content:"";
+  position:fixed; z-index:-1; border-radius:50%;
+  filter:blur(2px); opacity:.55;
+}
+body:before{width:220px;height:220px;background:#ffd9a8;left:-80px;bottom:-70px}
+body:after{width:260px;height:260px;background:#cde8ff;right:-90px;top:35%}
+
+.wrapper{width:min(980px,94vw);margin:auto;padding:24px 0 40px}
+.topbar{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  margin-bottom:14px
+}
+.brand{font-weight:800;font-size:clamp(20px,3vw,30px);color:#5b42bc}
+.badge{
+  background:#fff;padding:9px 14px;border-radius:999px;
+  box-shadow:0 8px 22px #6f6c951f;font-size:14px;font-weight:600
+}
+.panel{
+  background:var(--card);backdrop-filter:blur(12px);
+  border:1px solid #ffffff;
+  box-shadow:0 22px 60px #5c6a9a26;
+  border-radius:28px;padding:clamp(20px,4vw,36px)
+}
+.hero{text-align:center;padding:8px 0 6px}
+.hero .icon{
+  width:88px;height:88px;margin:0 auto 12px;border-radius:26px;
+  display:grid;place-items:center;font-size:45px;
+  background:linear-gradient(135deg,#7d62dd,#4f9fe8);
+  box-shadow:0 14px 28px #7257ce42
+}
+h1{margin:4px 0 8px;font-size:clamp(28px,5vw,44px);line-height:1.15}
+.subtitle{color:var(--muted);margin:0 auto 20px;max-width:680px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
+.info{
+  background:#f7f7ff;border:1px solid var(--line);
+  padding:15px;border-radius:18px;text-align:center
+}
+.info b{display:block;color:#5f49ba;font-size:20px}
+.form-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin:20px 0}
+input{
+  width:100%;border:1px solid #dad9e8;border-radius:14px;
+  padding:13px 14px;font:inherit;outline:none;background:#fff
+}
+input:focus{border-color:#8169d8;box-shadow:0 0 0 4px #7c64d51c}
+button{
+  border:0;border-radius:15px;padding:13px 18px;font:inherit;font-weight:700;
+  cursor:pointer;transition:.18s transform,.18s opacity,.18s box-shadow
+}
+button:hover{transform:translateY(-1px)}
+button:active{transform:translateY(0)}
+.primary{
+  color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary2));
+  box-shadow:0 10px 22px #6656c934
+}
+.secondary{background:#eff2ff;color:#5946b1}
+.hidden{display:none!important}
+
+.status{
+  display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;margin-bottom:18px
+}
+.progress-shell{height:12px;background:#ececf6;border-radius:999px;overflow:hidden}
+.progress{height:100%;width:0;background:linear-gradient(90deg,#7757d9,#4faee8);transition:.3s}
+.pill{padding:8px 12px;background:#f4f3ff;border-radius:999px;font-weight:700;white-space:nowrap}
+.question-card{
+  padding:25px;border-radius:22px;background:linear-gradient(180deg,#ffffff,#fbfbff);
+  border:1px solid var(--line);margin-bottom:18px
+}
+.qnum{font-size:14px;color:#7761c5;font-weight:800;letter-spacing:.5px}
+.question{
+  margin:10px 0 20px;font-size:clamp(24px,4vw,36px);font-weight:700;text-align:center
+}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.choice{
+  text-align:left;background:#fff;color:var(--ink);
+  border:1.5px solid #deddea;min-height:62px
+}
+.choice:hover{border-color:#8d79dc;box-shadow:0 8px 18px #6b5abc18}
+.choice.selected{border-color:#7059cf;background:#f2efff}
+.choice.correct{border-color:#35aa73;background:#effbf5;color:#17784b}
+.choice.wrong{border-color:#e66a7e;background:#fff1f4;color:#aa2f44}
+.choice:disabled{cursor:default}
+.feedback{
+  margin-top:16px;padding:14px 16px;border-radius:15px;font-size:15px
+}
+.feedback.good{background:#eefaf4;color:#1f7e52}
+.feedback.bad{background:#fff0f3;color:#9d3043}
+.action-row{display:flex;justify-content:flex-end;gap:10px;margin-top:14px}
+.result{text-align:center}
+.score-ring{
+  width:170px;height:170px;margin:10px auto 18px;border-radius:50%;
+  display:grid;place-items:center;
+  background:conic-gradient(#7757d9 var(--deg),#eceaf4 0);
+  position:relative
+}
+.score-ring:after{
+  content:"";position:absolute;inset:15px;background:white;border-radius:50%;
+}
+.score-ring .inside{z-index:1}
+.score-ring strong{font-size:42px;color:#5d45bf}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
+.result-box{background:#f7f7ff;border:1px solid var(--line);border-radius:17px;padding:14px}
+.review{margin-top:22px;text-align:left}
+.review-item{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:8px 0;background:#fff}
+.review-item.ok{border-left:5px solid var(--good)}
+.review-item.no{border-left:5px solid var(--bad)}
+.small{font-size:13px;color:var(--muted)}
+footer{text-align:center;color:#8b93a7;font-size:12px;padding-top:16px}
+
+@media(max-width:700px){
+  .form-grid,.grid3,.result-grid{grid-template-columns:1fr}
+  .choices{grid-template-columns:1fr}
+  .status{grid-template-columns:1fr 1fr}
+  .status .progress-shell{grid-column:1/-1}
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="topbar">
+    <div class="brand">∫ Integral Adventure</div>
+    <div class="badge">คณิตศาสตร์เพิ่มเติม • ม.6</div>
+  </div>
+
+  <section id="startScreen" class="panel">
+    <div class="hero">
+      <div class="icon">∫</div>
+      <h1>ภารกิจพิชิตปริพันธ์<br>แบบไม่จำกัดเขต</h1>
+      <p class="subtitle">เลือกคำตอบที่ถูกต้องให้ครบ 20 ข้อ ข้อละ 1 คะแนน พร้อมดูเฉลยและวิธีคิดหลังตอบแต่ละข้อ</p>
+    </div>
+
+    <div class="grid3">
+      <div class="info"><b>20</b>ข้อ</div>
+      <div class="info"><b>20</b>คะแนนเต็ม</div>
+      <div class="info"><b>ง่าย–ปานกลาง</b>ระดับโจทย์</div>
+    </div>
+
+    <div class="form-grid">
+      <input id="studentName" placeholder="ชื่อ–สกุล" />
+      <input id="studentClass" placeholder="ชั้น เช่น ม.6/1" />
+      <input id="studentNo" placeholder="เลขที่" />
+    </div>
+    <button class="primary" style="width:100%" onclick="startGame()">เริ่มเกม 🚀</button>
+    <p class="small" style="text-align:center;margin-top:13px">คำตอบทุกข้อเขียนในรูป “+ C” ตามหลักปริพันธ์ไม่จำกัดเขต</p>
+  </section>
+
+  <section id="gameScreen" class="panel hidden">
+    <div class="status">
+      <div class="progress-shell"><div id="progress" class="progress"></div></div>
+      <div id="scorePill" class="pill">⭐ 0 คะแนน</div>
+      <div id="countPill" class="pill">ข้อ 1/20</div>
+    </div>
+
+    <div class="question-card">
+      <div id="qnum" class="qnum"></div>
+      <div id="question" class="question"></div>
+      <div id="choices" class="choices"></div>
+      <div id="feedback" class="feedback hidden"></div>
+      <div class="action-row">
+        <button id="nextBtn" class="primary hidden" onclick="nextQuestion()">ข้อต่อไป →</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="resultScreen" class="panel hidden result">
+    <div class="hero">
+      <div class="icon">🏆</div>
+      <h1>จบภารกิจแล้ว!</h1>
+      <p id="studentSummary" class="subtitle"></p>
+    </div>
+
+    <div id="scoreRing" class="score-ring" style="--deg:0deg">
+      <div class="inside"><strong id="finalScore">0</strong><div>/ 20</div></div>
+    </div>
+    <h2 id="resultMessage"></h2>
+
+    <div class="result-grid">
+      <div class="result-box"><b id="correctCount">0</b><br><span class="small">ตอบถูก</span></div>
+      <div class="result-box"><b id="wrongCount">0</b><br><span class="small">ตอบผิด</span></div>
+      <div class="result-box"><b id="percent">0%</b><br><span class="small">ร้อยละ</span></div>
+    </div>
+
+    <button class="primary" onclick="restartGame()">เล่นใหม่อีกครั้ง ↻</button>
+    <button class="secondary" onclick="toggleReview()">ดูสรุปคำตอบ</button>
+    <div id="review" class="review hidden"></div>
+  </section>
+
+  <footer>Integral Adventure • ฝึกทักษะปริพันธ์ไม่จำกัดเขต</footer>
+</div>
+
+<script>
+const questions = [
+  {q:"∫ x³ dx", a:["x⁴ + C","x⁴/4 + C","3x² + C","x³/3 + C"], c:1, e:"ใช้กฎ ∫xⁿdx = xⁿ⁺¹/(n+1) + C ⇒ x⁴/4 + C"},
+  {q:"∫ 6x² dx", a:["2x³ + C","6x³ + C","3x² + C","x³ + C"], c:0, e:"6∫x²dx = 6(x³/3) = 2x³ + C"},
+  {q:"∫ 5 dx", a:["5 + C","x⁵ + C","5x + C","x/5 + C"], c:2, e:"ปริพันธ์ของค่าคงตัว k คือ kx + C"},
+  {q:"∫ (4x + 3) dx", a:["2x² + 3x + C","4x² + 3x + C","2x² + 3 + C","4 + 3x + C"], c:0, e:"แยกอินทิเกรต: ∫4x dx + ∫3 dx = 2x² + 3x + C"},
+  {q:"∫ x⁵ dx", a:["5x⁴ + C","x⁶/6 + C","x⁵/5 + C","6x⁶ + C"], c:1, e:"เพิ่มเลขชี้กำลัง 1 แล้วหารด้วยเลขชี้กำลังใหม่"},
+  {q:"∫ 8x³ dx", a:["8x⁴ + C","4x² + C","2x⁴ + C","24x² + C"], c:2, e:"8(x⁴/4) = 2x⁴ + C"},
+  {q:"∫ (3x² − 4x + 2) dx", a:["x³ − 2x² + 2x + C","x³ − 4x² + 2 + C","6x − 4 + C","x³ − 2x + 2x² + C"], c:0, e:"อินทิเกรตทีละพจน์: x³ − 2x² + 2x + C"},
+  {q:"∫ √x dx", a:["x^(3/2) + C","(2/3)x^(3/2) + C","(1/2)x^(−1/2) + C","2√x + C"], c:1, e:"√x = x^(1/2), จึงได้ x^(3/2)/(3/2) = (2/3)x^(3/2) + C"},
+  {q:"∫ 1/√x dx", a:["2√x + C","−2/√x + C","√x/2 + C","x√x + C"], c:0, e:"1/√x = x^(−1/2), ได้ x^(1/2)/(1/2) = 2√x + C"},
+  {q:"∫ 3/x² dx", a:["3/x + C","−3/x + C","−6/x³ + C","3x³ + C"], c:1, e:"3/x² = 3x^(−2), ได้ 3x^(−1)/(−1) = −3/x + C"},
+  {q:"∫ (2x³ + x) dx", a:["x⁴/2 + x²/2 + C","2x⁴ + x² + C","6x² + 1 + C","x⁴ + x² + C"], c:0, e:"∫2x³dx = x⁴/2 และ ∫x dx = x²/2"},
+  {q:"∫ (x⁴ − 2x²) dx", a:["x⁵/5 − 2x³/3 + C","4x³ − 4x + C","x⁵ − 2x³ + C","x⁵/5 − x³ + C"], c:0, e:"ใช้กฎกำลังกับแต่ละพจน์"},
+  {q:"ถ้า F'(x)=7x⁶ แล้ว F(x) เท่ากับข้อใด", a:["x⁷ + C","7x⁷ + C","42x⁵ + C","x⁶ + C"], c:0, e:"∫7x⁶dx = 7(x⁷/7) = x⁷ + C"},
+  {q:"∫ (6x² + 4) dx", a:["2x³ + 4x + C","3x² + 4x + C","2x³ + 4 + C","6x³ + 4x + C"], c:0, e:"∫6x²dx = 2x³ และ ∫4dx = 4x"},
+  {q:"∫ (5x⁴ − 3x² + 1) dx", a:["x⁵ − x³ + x + C","25x³ − 6x + C","x⁵ − x³ + C","x⁵ − 3x³ + x + C"], c:0, e:"5x⁴ → x⁵, −3x² → −x³, 1 → x"},
+  {q:"∫ (2/3)x² dx", a:["(2/9)x³ + C","(2/3)x³ + C","2x³ + C","(1/3)x³ + C"], c:0, e:"(2/3)(x³/3) = (2/9)x³ + C"},
+  {q:"∫ (4x³ − 6x) dx", a:["x⁴ − 3x² + C","4x⁴ − 6x² + C","12x² − 6 + C","x⁴ − 6x² + C"], c:0, e:"4x³ → x⁴ และ −6x → −3x²"},
+  {q:"ถ้า ∫ f(x) dx = x³ + 2x + C แล้ว f(x) คือข้อใด", a:["x² + 2","3x² + 2","3x² + 2x","x³ + 2"], c:1, e:"หาอนุพันธ์ของ x³ + 2x ได้ 3x² + 2"},
+  {q:"∫ (x² + 2x + 4) dx", a:["x³/3 + x² + 4x + C","x³ + x² + 4 + C","2x + 2 + C","x³/3 + 2x² + 4x + C"], c:0, e:"∫x²dx=x³/3, ∫2x dx=x², ∫4dx=4x"},
+  {q:"∫ (10x⁴ − 8x³ + 6x²) dx", a:["2x⁵ − 2x⁴ + 2x³ + C","50x³ − 24x² + 12x + C","2x⁵ − 8x⁴ + 6x³ + C","10x⁵/4 − 2x⁴ + 2x³ + C"], c:0, e:"10x⁴→2x⁵, −8x³→−2x⁴, 6x²→2x³"}
+];
+
+let order=[], index=0, score=0, answered=false, history=[];
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function startGame(){
+  const name=document.getElementById('studentName').value.trim();
+  if(!name){ alert('กรุณากรอกชื่อ–สกุลก่อนเริ่มเกม'); return; }
+  order=shuffle([...Array(questions.length).keys()]);
+  index=0; score=0; history=[];
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('resultScreen').classList.add('hidden');
+  document.getElementById('gameScreen').classList.remove('hidden');
+  showQuestion();
+}
+function showQuestion(){
+  answered=false;
+  const q=questions[order[index]];
+  document.getElementById('qnum').textContent=`QUESTION ${index+1}`;
+  document.getElementById('question').textContent=q.q;
+  document.getElementById('countPill').textContent=`ข้อ ${index+1}/20`;
+  document.getElementById('scorePill').textContent=`⭐ ${score} คะแนน`;
+  document.getElementById('progress').style.width=`${(index/20)*100}%`;
+  document.getElementById('feedback').className='feedback hidden';
+  document.getElementById('nextBtn').classList.add('hidden');
+  const box=document.getElementById('choices'); box.innerHTML='';
+  q.a.forEach((txt,i)=>{
+    const b=document.createElement('button');
+    b.className='choice';
+    b.textContent=String.fromCharCode(65+i)+'. '+txt;
+    b.onclick=()=>choose(i,b);
+    box.appendChild(b);
+  });
+}
+function choose(choice, btn){
+  if(answered) return;
+  answered=true;
+  const q=questions[order[index]];
+  const buttons=[...document.querySelectorAll('.choice')];
+  buttons.forEach((b,i)=>{
+    b.disabled=true;
+    if(i===q.c) b.classList.add('correct');
+  });
+  const fb=document.getElementById('feedback');
+  const isCorrect=choice===q.c;
+  if(isCorrect){
+    score++;
+    fb.className='feedback good';
+    fb.innerHTML=`✅ ถูกต้อง! <b>+1 คะแนน</b><br>${q.e}`;
+  }else{
+    btn.classList.add('wrong');
+    fb.className='feedback bad';
+    fb.innerHTML=`❌ ยังไม่ถูก คำตอบที่ถูกคือ <b>${String.fromCharCode(65+q.c)}. ${q.a[q.c]}</b><br>${q.e}`;
+  }
+  history.push({num:index+1, question:q.q, chosen:q.a[choice], correct:q.a[q.c], ok:isCorrect});
+  document.getElementById('scorePill').textContent=`⭐ ${score} คะแนน`;
+  const next=document.getElementById('nextBtn');
+  next.textContent=index===19?'ดูผลคะแนน 🏆':'ข้อต่อไป →';
+  next.classList.remove('hidden');
+}
+function nextQuestion(){
+  if(index<19){index++;showQuestion();}
+  else finishGame();
+}
+function finishGame(){
+  document.getElementById('gameScreen').classList.add('hidden');
+  document.getElementById('resultScreen').classList.remove('hidden');
+  const name=document.getElementById('studentName').value.trim();
+  const cls=document.getElementById('studentClass').value.trim();
+  const no=document.getElementById('studentNo').value.trim();
+  document.getElementById('studentSummary').textContent=`${name}${cls?' • '+cls:''}${no?' • เลขที่ '+no:''}`;
+  const pct=Math.round(score/20*100);
+  document.getElementById('finalScore').textContent=score;
+  document.getElementById('correctCount').textContent=score;
+  document.getElementById('wrongCount').textContent=20-score;
+  document.getElementById('percent').textContent=pct+'%';
+  document.getElementById('scoreRing').style.setProperty('--deg',(score/20*360)+'deg');
+  let msg='ควรทบทวนกฎปริพันธ์แล้วลองอีกครั้ง';
+  if(score>=18) msg='ยอดเยี่ยม! เข้าใจกฎปริพันธ์ได้แม่นมาก';
+  else if(score>=15) msg='ทำได้ดีมาก เหลืออีกเล็กน้อยก็เต็มแล้ว';
+  else if(score>=12) msg='ผ่านระดับดี ควรฝึกโจทย์ผสมเพิ่มอีกนิด';
+  document.getElementById('resultMessage').textContent=msg;
+  renderReview();
+}
+function renderReview(){
+  const box=document.getElementById('review'); box.innerHTML='<h3>สรุปคำตอบทั้ง 20 ข้อ</h3>';
+  history.forEach(h=>{
+    const d=document.createElement('div');
+    d.className='review-item '+(h.ok?'ok':'no');
+    d.innerHTML=`<b>ข้อ ${h.num}: ${h.question}</b><br>
+      <span class="small">คำตอบของคุณ: ${h.chosen}</span><br>
+      <span class="small">คำตอบที่ถูก: ${h.correct}</span>`;
+    box.appendChild(d);
+  });
+}
+function toggleReview(){document.getElementById('review').classList.toggle('hidden')}
+function restartGame(){
+  document.getElementById('resultScreen').classList.add('hidden');
+  document.getElementById('startScreen').classList.remove('hidden');
+}
+</script>
+</body>
+</html>
